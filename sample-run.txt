@@ -1,0 +1,119 @@
+Enter nickname:
+idontexist
+Enter password:
+xyz
+Invalid nickname/password combination. Try again
+Enter nickname:
+preed
+Enter password:
+welcomePREED
+Successfully logged in
+Enter command:
+search fn: art
+Last name: fisher First name: arthur Nickname: afisher Friend: no
+Enter command:
+search ln: e
+Last name: reed First name: patricia Nickname: preed Friend: no
+Last name: fisher First name: arthur Nickname: afisher Friend: no
+Last name: elliott First name: katherine Nickname: kelliott Friend: no
+Enter command:
+add friend: preed
+You can't be your own friend
+Enter command:
+add friend: xyz
+Can't locate xyz
+Enter command:
+add friend: lday
+Already a friend
+Enter command:
+add friend: afisher
+Successfully added
+Enter command:
+search ln: e
+Last name: reed First name: patricia Nickname: preed Friend: no
+Last name: fisher First name: arthur Nickname: afisher Friend: yes
+Last name: elliott First name: katherine Nickname: kelliott Friend: noEnter command:
+send message: kelliott, "Hi"
+I don't know kelliott
+Enter command:
+send message: preed, "Hi"
+Can't send yourself a message
+Enter command:
+send message: afisher, "Hi"
+Sent successfully
+Enter command:
+read messages all
+From: rdixon To: preed Message: Good night!! Time Sent: Tue Jan 19 23:36:54 CST 2016
+From: preed To: afisher Message: Hi" Time Sent: Fri Jan 22 10:35:35 CST 2016
+Enter command:
+read messages unread
+No messages
+Enter command:
+read messages
+Invalid command
+Enter command:
+send message: rdixon, "Hello friend"
+Sent successfully
+Enter command:
+logout
+Logged out
+Enter nickname:
+rdixon
+Enter password:
+welcomeRDIXON
+Successfully logged in
+Enter command:
+read messages unread from: preed
+From: preed To: rdixon Message: Hello friend" Time Sent: Fri Jan 22 10:36:58 CST 2016
+Enter command:
+read messages unread from: preed
+No messages
+Enter command:
+add to bcast: preed, rdixbf
+Already present
+Enter command:
+add to bcast: xyz, xyz1
+Not a friend
+Enter command:
+add to bcast: preed, xyz
+Broadcast list xyz does not exist
+Enter command:
+add to bcast: kelliott, rdixbf
+Already present
+Enter command:
+add to bcast: afisher, rdixbf
+Successfully added
+Enter command:
+send message: rdixbf, "Hi guys!!"
+Sent successfully
+Enter command:
+read messages all
+From: rdixon To: afisher Message: How are you? Time Sent: Tue Jan 19 23:32:56 CST 2016
+From: rdixon To: lday Message: Lets meet today Time Sent: Tue Jan 19 23:34:52 CST 2016
+From: rdixon To: rdixbf Message: Good night!! Time Sent: Tue Jan 19 23:36:54 CST 2016
+From: preed To: rdixon Message: Hello friend" Time Sent: Fri Jan 22 10:36:58 CST 2016
+From: rdixon To: rdixbf Message: Hi guys!!" Time Sent: Fri Jan 22 10:39:46 CST 2016
+Enter command:
+logout
+Logged out
+Enter nickname:
+afisher
+Enter password:
+welcomeAFISHER
+Successfully logged in
+Enter command:
+read messages all
+From: rdixon To: afisher Message: How are you? Time Sent: Tue Jan 19 23:32:56 CST 2016
+From: preed To: afisher Message: Hi" Time Sent: Fri Jan 22 10:35:35 CST 2016
+From: rdixon To: afisher Message: Hi guys!!" Time Sent: Fri Jan 22 10:39:46 CST 2016
+Enter command:
+read messages all
+From: rdixon To: afisher Message: How are you? Time Sent: Tue Jan 19 23:32:56 CST 2016
+From: preed To: afisher Message: Hi" Time Sent: Fri Jan 22 10:35:35 CST 2016
+From: rdixon To: afisher Message: Hi guys!!" Time Sent: Fri Jan 22 10:39:46 CST 2016
+Enter command:
+read messages unread
+No messages
+Enter command:
+exit:
+Exiting
