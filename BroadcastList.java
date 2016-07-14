@@ -11,6 +11,8 @@ public class BroadcastList
 {
 
     //TODO: Add class fields here
+    private String nickname;
+    private ArrayList<String> members;
 
     /**
      * Constructs a new instance of this class. nickname cannot be null or
@@ -26,6 +28,10 @@ public class BroadcastList
     public BroadcastList(String nickname, List<String> members) throws WhatsAppRuntimeException
     {
         //TODO
+        if (nickname == null || members == null)
+            throw new WhatsAppRuntimeException(Config.CANT_BE_EMPTY_OR_NULL);
+        this.setNickname(nickname);
+        this.setMembers(members);
     }
 
     /**
@@ -36,7 +42,7 @@ public class BroadcastList
     public String getNickname()
     {
         //TODO
-        return null;
+        return this.nickname;
     }
 
     /**
@@ -47,6 +53,7 @@ public class BroadcastList
     public void setNickname(String nickname)
     {
         //TODO
+        this.nickname = nickname;
     }
 
     /**
@@ -57,7 +64,7 @@ public class BroadcastList
     public List<String> getMembers()
     {
         //TODO
-        return null;
+        return this.members;
     }
 
     /**
@@ -68,6 +75,7 @@ public class BroadcastList
     public void setMembers(List<String> members)
     {
         //TODO
+        this.members = members;
     }
 
 }
