@@ -208,6 +208,17 @@ public class User
     public void removeBroadcastList(String broadcastNickname) throws WhatsAppException
     {
         //TODO
+        Iterator itr = this.broadcastLists.iterator();
+        BroadcastList currList = null;
+        boolean exist = false;
+        while (itr.hasNext()) {
+            currList = itr.next();
+            if (currList.getNickname.equals(broadcastNickname)) {
+                itr.remove();
+                exist = true;
+            }
+        }
+        if (!exist) throw new WhatsAppException(Config.BCAST_LIST_DOES_NOT_EXIST);
     }
 
     /**
@@ -221,7 +232,14 @@ public class User
     public boolean isFriend(String nickname)
     {
         //TODO
-        return false;
+        Iterator itr = friends.iterator();
+        User currFriend = null;
+        boolean isFriend = false;
+        while (itr.hasNext()) {
+            currFriend = itr.next();
+            if (currFriend.getNickname.equals(nickname)) isFriend = true;
+        }
+        return isFriend;
     }
 
     /**
@@ -235,6 +253,16 @@ public class User
     public boolean isBroadcastList(String nickname)
     {
         //TODO
+        Iterator itr = broadcastLists.iterator();
+        BroadcastList currList = null;
+        boolean result = false;
+        while (itr.hasNext()) {
+            currList = itr.next();
+            if (isMemberOfBroadcastList(nickname, currList.getNickname)) {
+                result = true;
+                break;
+            }
+        }
         return false;
     }
 
@@ -264,7 +292,25 @@ public class User
     public boolean isMemberOfBroadcastList(String nickname, String broadcastNickname)
     {
         //TODO
-        return false;
+        Iterator itr = broadcastLists.iterator();
+        BroadcastList currList = null;
+        boolean result = false;
+        while (itr.hasNext()) {
+            currList = itr.next();
+            if (currList.getNickname.equals(broadcastNickname)) {
+                List<String> members = currList.getMembers();
+                Iterator memberItr = members.iterator();
+                String currMember = null;
+                while (memberItr.hasNext()) {
+                    currMember = memberItr.next();
+                    if (currMember.equals(nickname)) {
+                        result = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     /**

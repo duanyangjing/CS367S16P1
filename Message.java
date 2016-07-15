@@ -151,7 +151,7 @@ public class Message
     public Date getSentTime()
     {
         //TODO
-        return null;
+        return this.sentTime;
     }
 
     /**
@@ -163,6 +163,7 @@ public class Message
     public void setSentTime(Date sentTime)
     {
         //TODO
+        this.sentTime = sentTime;
     }
 
     /**

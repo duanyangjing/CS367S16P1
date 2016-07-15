@@ -12,7 +12,7 @@ public class BroadcastList
 
     //TODO: Add class fields here
     private String nickname;
-    private ArrayList<String> members;
+    private List<String> members;
 
     /**
      * Constructs a new instance of this class. nickname cannot be null or
