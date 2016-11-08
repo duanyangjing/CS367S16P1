@@ -2,6 +2,9 @@
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+
 
 /**
  * The most important class. This processes all the commands issued by the users
@@ -128,24 +131,81 @@ public class CommandProcessor
     public static void readMessage(String nickname, boolean enforceUnread)
     {
         //TODO
-        // read messages unread from
         User currUser = CONFIG.getCurrentUser();
         List<Message> messages = currUser.getMessages();
+        boolean existSuchMessage = false;
+        // read messages unread from
         if (nickname != null && enforceUnread) {
             for (Message message : messages) {
-                if (message.getFromNickname().equals(nickname)) {
+                if (message.getFromNickname().equals(nickname) && !message.isRead()) {
+                    existSuchMessage = true;
                     message.setRead(true);
-                    CONFIG.getConsoleOutput().printf(Config.MESSAGE_FORMAT, message.getFromNickname(), message.getToNickname(), message.getMessage(), message.getSentTime());
+                    printMessage(message);
                 }
             }
+            if (!existSuchMessage) {
+                CONFIG.getConsoleOutput().printf(Config.NO_MESSAGES);
+            }
+
+        // read messages all from
         } else if (nickname != null && !enforceUnread) {
+            for (Message message: messages) {
+                if (message.getFromNickname().equals(nickname)
+                    || message.getToNickname().equals(nickname)
+                    || isMemberOfBroadcastLists(nickname, currUser))
+                    existSuchMessage = true;
+                    printMessage(message);
+            }
+            if (!existSuchMessage) {
+                CONFIG.getConsoleOutput().printf(Config.NO_MESSAGES);
+            }
 
+        // read messages unread
         } else if (nickname == null && enforceUnread) {
+            List<Message> unreadMessages = new ArrayList<Message>();
+            for (Message message : messages) {
+                if (!message.isRead()) {
+                    existSuchMessage = true;
+                    message.setRead(true);
+                    unreadMessages.add(message);
+                }
+            }
+            if (!existSuchMessage) {
+                CONFIG.getConsoleOutput().printf(Config.NO_MESSAGES);
+            }
 
+            Collections.sort(unreadMessages);
+            for (Message message : messages) {
+                printMessage(message);
+            }
+
+        // read messages all
         } else {
-
+            for (Message message : messages) {
+                existSuchMessage = true;
+                printMessage(message);
+            }
+            if (!existSuchMessage) {
+                CONFIG.getConsoleOutput().printf(Config.NO_MESSAGES);
+            }
         }
     }
+
+    private static boolean isMemberOfBroadcastLists(String nickname, User user) {
+        List<BroadcastList> broadcastLists = user.getBroadcastLists();
+        boolean result = false;
+        for (BroadcastList bl : broadcastLists) {
+            if (user.isMemberOfBroadcastList(nickname, bl.getNickname())) {
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    private static void printMessage(Message message) {
+        CONFIG.getConsoleOutput().printf(Config.MESSAGE_FORMAT, message.getFromNickname(), message.getToNickname(), message.getMessage(), message.getSentTime());
+    }
+
 
     /**
      * Method to do a user search. Does a case insensitive "contains" search on

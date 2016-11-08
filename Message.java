@@ -20,7 +20,7 @@ import java.util.Date;
  *
  * @author jmishra
  */
-public class Message
+public class Message implements Comparable<Message>
 {
 
     //TODO: add class fields here
@@ -210,6 +210,10 @@ public class Message
     {
         //TODO
         this.read = read;
+    }
+
+    public int compareTo(Message m) {
+        return sentTime.compareTo(m.sentTime);
     }
 
 }
