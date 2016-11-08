@@ -83,24 +83,26 @@ public class CommandProcessor
             throw new WhatsAppException(Config.CANT_SEND_YOURSELF);
         }
         if (!Helper.isExistingGlobalContact(nickname)) {
-            throw new WhatsAppException(Config.NICKNAME_DOES_NOT_EXIST);
+            throw new WhatsAppException(String.format(Config.NICKNAME_DOES_NOT_EXIST, nickname));
         }
 
         Date d = new Date();
         Message sentMessage = null;
         Message receivedMessage = null;
         if (currUser.isFriend(nickname)) {
-            // Message sent to a friend not a broadcastlist. Message is reading for senders.
+            // Message sent to a friend not a broadcastlist. Message is read for senders.
             sentMessage = new Message(fromNickname, nickname, null, d, message, true);
             currUser.getMessages().add(sentMessage);
             User toUser = Helper.getUserFromNickname(allUsers, nickname);
             // Message not read for receivers at the begining.
             receivedMessage = new Message(fromNickname, nickname, null, d, message, false);
             toUser.getMessages().add(receivedMessage);
+
         } else if (currUser.isBroadcastList(nickname)) {
+            // Message sent to a broadcastlist.
             sentMessage = new Message(fromNickname, null, nickname, d, message, true);
             currUser.getMessages().add(sentMessage);
-            // need to process for each user in the broadcastlist
+            // Need to process for each user in the broadcastlist
             BroadcastList toBroadcastList = Helper.getBroadcastListFromNickname(currUser.getBroadcastLists(), nickname);
             Iterator<String> itr =
                 toBroadcastList.getMembers().iterator();
@@ -113,7 +115,10 @@ public class CommandProcessor
             }
 
         } else {
-
+            // Given nickname is not a friend of the current user or a bcastList
+            // of the current user (but exists globally). No exception is found
+            // to deal with this case.
+            // may need to add new exceptions
         }
         CONFIG.getConsoleOutput().printf(Config.MESSAGE_SENT_SUCCESSFULLY);
     }
@@ -175,12 +180,15 @@ public class CommandProcessor
             }
 
             Collections.sort(unreadMessages);
-            for (Message message : messages) {
+            for (Message message : unreadMessages) {
                 printMessage(message);
             }
 
         // read messages all
         } else {
+            if (messages.isEmpty()) {
+                System.out.println("HERE NO MESSAGES AT ALL");
+            }
             for (Message message : messages) {
                 existSuchMessage = true;
                 printMessage(message);
@@ -191,6 +199,9 @@ public class CommandProcessor
         }
     }
 
+    // Helper function to find whether a user is a member in another user's
+    // broadcastlists, used by read messages all from to determine whether a
+    // message is sent to another user via (any) broadcastlists of this user .
     private static boolean isMemberOfBroadcastLists(String nickname, User user) {
         List<BroadcastList> broadcastLists = user.getBroadcastLists();
         boolean result = false;
@@ -220,6 +231,28 @@ public class CommandProcessor
     public static void search(String word, boolean searchByFirstName)
     {
         //TODO
+        User currUser = CONFIG.getCurrentUser();
+        List<User> allUsers = CONFIG.getAllUsers();
+        boolean searchResultFound = false;
+        for (User user : allUsers) {
+            // search by first name
+            if (searchByFirstName) {
+                if (user.getFirstName().contains(word)) {
+                    CONFIG.getConsoleOutput().printf(Config.USER_DISPLAY_FOR_SEARCH, user.getLastName(), user.getFirstName(), user.getNickname(), currUser.isFriend(user.getNickname()) ? "yes" : "no");
+                    searchResultFound = true;
+                }
+            // search by last name
+            } else {
+                if (user.getLastName().contains(word)) {
+                    CONFIG.getConsoleOutput().printf(Config.USER_DISPLAY_FOR_SEARCH, user.getLastName(), user.getFirstName(), user.getNickname(), currUser.isFriend(user.getNickname()) ? "yes" : "no");
+                    searchResultFound = true;
+                }
+            }
+        }
+
+        if (!searchResultFound) {
+            CONFIG.getConsoleOutput().printf(Config.NO_RESULTS_FOUND);
+        }
     }
 
     /**
@@ -233,6 +266,8 @@ public class CommandProcessor
     public static void addFriend(String nickname) throws WhatsAppException
     {
        //TODO
+       CONFIG.getCurrentUser().addFriend(nickname);
+       CONFIG.getConsoleOutput().printf(Config.SUCCESSFULLY_ADDED);
     }
 
     /**
@@ -306,6 +341,22 @@ public class CommandProcessor
             String bcastNickname) throws WhatsAppException
     {
         //TODO
+        User currUser = CONFIG.getCurrentUser();
+        if (!currUser.isFriend(friendNickname)) {
+            throw new WhatsAppException(Config.NOT_A_FRIEND);
+        }
+        if (!currUser.isBroadcastList(bcastNickname)) {
+            throw new WhatsAppException(String.
+                    format(Config.BCAST_LIST_DOES_NOT_EXIST, bcastNickname));
+        }
+        if (!currUser.isMemberOfBroadcastList(friendNickname, bcastNickname)) {
+            throw new WhatsAppException(Config.NOT_PART_OF_BCAST_LIST);
+        }
+        Helper.
+                getBroadcastListFromNickname(currUser.
+                        getBroadcastLists(), bcastNickname).getMembers().
+                remove(friendNickname);
+        CONFIG.getConsoleOutput().printf(Config.SUCCESSFULLY_REMOVED);
     }
 
     /**
@@ -318,9 +369,16 @@ public class CommandProcessor
      * @throws WhatsAppException Simply pass the exception returned from the
      * removeBroadcastList method of the User class
      */
-    public static void removeBroadcastcast(String nickname) throws WhatsAppException
+    public static void removeBroadcastList(String nickname) throws WhatsAppException
     {
         //TODO
+        User currUser = CONFIG.getCurrentUser();
+        if (!currUser.isBroadcastList(nickname)) {
+            throw new WhatsAppException(String.
+                    format(Config.BCAST_LIST_DOES_NOT_EXIST, nickname));
+        }
+        currUser.removeBroadcastList(nickname);
+        CONFIG.getConsoleOutput().printf(Config.SUCCESSFULLY_REMOVED);
     }
 
     /**
@@ -419,7 +477,7 @@ public class CommandProcessor
                     nickname = command.
                             substring(command.indexOf(":") + 1, command.trim().
                                     length());
-                    removeBroadcastcast(nickname);
+                    removeBroadcastList(nickname);
                     break;
                 default:
                     CONFIG.getConsoleOutput().

@@ -329,7 +329,7 @@ public class User
             throw new WhatsAppException(Config.ALREADY_A_FRIEND);
         }
         if (!Helper.isExistingGlobalContact(nickname)) {
-            throw new WhatsAppException(Config.CANT_LOCATE);
+            throw new WhatsAppException(String.format(Config.CANT_LOCATE, nickname));
         }
         List<User> allUsers = Config.getInstance().getAllUsers();
         Iterator<User> itr = allUsers.iterator();
