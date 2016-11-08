@@ -1,6 +1,7 @@
 
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * The most important class. This processes all the commands issued by the users
@@ -54,6 +55,8 @@ public class CommandProcessor
     public static void doLogout()
     {
         //TODO
+        CONFIG.setCurrentUser(null);
+        CONFIG.getConsoleOutput().printf(Config.SUCCESSFULLY_LOGGED_OUT);
     }
 
     /**
@@ -70,6 +73,46 @@ public class CommandProcessor
     public static void sendMessage(String nickname, String message) throws WhatsAppRuntimeException, WhatsAppException
     {
         //TODO
+        User currUser = CONFIG.getCurrentUser();
+        String fromNickname = currUser.getNickname();
+        List<User> allUsers = CONFIG.getAllUsers();
+        if (nickname.equals(fromNickname)) {
+            throw new WhatsAppException(Config.CANT_SEND_YOURSELF);
+        }
+        if (!Helper.isExistingGlobalContact(nickname)) {
+            throw new WhatsAppException(Config.NICKNAME_DOES_NOT_EXIST);
+        }
+
+        Date d = new Date();
+        Message sentMessage = null;
+        Message receivedMessage = null;
+        if (currUser.isFriend(nickname)) {
+            // Message sent to a friend not a broadcastlist. Message is reading for senders.
+            sentMessage = new Message(fromNickname, nickname, null, d, message, true);
+            currUser.getMessages().add(sentMessage);
+            User toUser = Helper.getUserFromNickname(allUsers, nickname);
+            // Message not read for receivers at the begining.
+            receivedMessage = new Message(fromNickname, nickname, null, d, message, false);
+            toUser.getMessages().add(receivedMessage);
+        } else if (currUser.isBroadcastList(nickname)) {
+            sentMessage = new Message(fromNickname, null, nickname, d, message, true);
+            currUser.getMessages().add(sentMessage);
+            // need to process for each user in the broadcastlist
+            BroadcastList toBroadcastList = Helper.getBroadcastListFromNickname(currUser.getBroadcastLists(), nickname);
+            Iterator<String> itr =
+                toBroadcastList.getMembers().iterator();
+            while (itr.hasNext()) {
+                String broadcastListMemberNickname = itr.next();
+                User toUser = Helper.getUserFromNickname(allUsers, broadcastListMemberNickname);
+                receivedMessage =
+                    new Message(fromNickname, toUser.getNickname(), null, d, message, false);
+                toUser.getMessages().add(receivedMessage);
+            }
+
+        } else {
+
+        }
+        CONFIG.getConsoleOutput().printf(Config.MESSAGE_SENT_SUCCESSFULLY);
     }
 
     /**
@@ -85,6 +128,23 @@ public class CommandProcessor
     public static void readMessage(String nickname, boolean enforceUnread)
     {
         //TODO
+        // read messages unread from
+        User currUser = CONFIG.getCurrentUser();
+        List<Message> messages = currUser.getMessages();
+        if (nickname != null && enforceUnread) {
+            for (Message message : messages) {
+                if (message.getFromNickname().equals(nickname)) {
+                    message.setRead(true);
+                    CONFIG.getConsoleOutput().printf(Config.MESSAGE_FORMAT, message.getFromNickname(), message.getToNickname(), message.getMessage(), message.getSentTime());
+                }
+            }
+        } else if (nickname != null && !enforceUnread) {
+
+        } else if (nickname == null && enforceUnread) {
+
+        } else {
+
+        }
     }
 
     /**
