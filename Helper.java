@@ -33,7 +33,6 @@ public class Helper
         while (itr.hasNext()) {
             currUser = itr.next();
             if (nickname.equals(currUser.getNickname())) break;
-            else currUser = null;
         }
         return currUser;
     }
@@ -57,7 +56,6 @@ public class Helper
         while (itr.hasNext()) {
             currList = itr.next();
             if (currList.getNickname().equals(nickname)) break;
-            else currList = null;
         }
         return currList;
     }
