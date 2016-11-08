@@ -28,11 +28,11 @@ public class Helper
     public static User getUserFromNickname(List<User> users, String nickname)
     {
         //TODO
-        Iterator itr = users.iterator();
+        Iterator<User> itr = users.iterator();
         User currUser = null;
         while (itr.hasNext()) {
             currUser = itr.next();
-            if (nickname.equals(currUser.getNickname)) break;
+            if (nickname.equals(currUser.getNickname())) break;
             else currUser = null;
         }
         return currUser;
@@ -52,11 +52,11 @@ public class Helper
             List<BroadcastList> lists, String nickname)
     {
         //TODO
-        Iterator itr = lists.iterator();
+        Iterator<BroadcastList> itr = lists.iterator();
         BroadcastList currList = null;
         while (itr.hasNext()) {
             currList = itr.next();
-            if (currList.getNickname.equals(nickname)) break;
+            if (currList.getNickname().equals(nickname)) break;
             else currList = null;
         }
         return currList;
@@ -72,8 +72,8 @@ public class Helper
     public static boolean isExistingGlobalContact(String nickname)
     {
         //TODO
-        List<User> allUsers = Config.getAllUsers();
-        Iterator itr = allUsers.iterator();
+        List<User> allUsers = Config.getInstance().getAllUsers();
+        Iterator<User> itr = allUsers.iterator();
         User currUser = null;
         while (itr.hasNext()) {
             currUser = itr.next();
@@ -98,7 +98,7 @@ public class Helper
      */
     public static void populateData(String filename) throws FileNotFoundException, IOException, WhatsAppRuntimeException, ParseException
     {
-        Scanner scanner = new Scanner(new File(filename));        
+        Scanner scanner = new Scanner(new File(filename));
         while (scanner.hasNextLine())
         {
             String line = scanner.nextLine();

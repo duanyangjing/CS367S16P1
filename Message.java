@@ -30,8 +30,8 @@ public class Message
     private Date sentTime;
     private String message;
     private boolean read;
-    
-    
+
+
     /**
      * A constructor to instantiate this class. fromNickname and message cannot
      * be null or empty. toNickname must be null, if broadcastNockname is
@@ -59,7 +59,7 @@ public class Message
     {
         //TODO
         if (fromNickname == null || message == null ||sentTime == null)
-            throw new WhatsAppRuntimeException(config.CANT_BE_EMPTY_OR_NULL);
+            throw new WhatsAppRuntimeException(Config.CANT_BE_EMPTY_OR_NULL);
         // initialize message to a single user
         if (toNickname != null && broadcastNickname == null)
             this.toNickname = toNickname;
@@ -68,7 +68,7 @@ public class Message
             this.broadcastNickname = broadcastNickname;
         // tonickname and broadcastnickname illegal input
         else
-            throw new WhatsAppRuntimeException(config.CANT_BE_EMPTY_OR_NULL);
+            throw new WhatsAppRuntimeException(Config.CANT_BE_EMPTY_OR_NULL);
         // set other variables
         this.fromNickname = fromNickname;
         this.message = message;

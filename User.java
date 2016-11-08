@@ -208,12 +208,11 @@ public class User
     public void removeBroadcastList(String broadcastNickname) throws WhatsAppException
     {
         //TODO
-        Iterator itr = this.broadcastLists.iterator();
-        BroadcastList currList = null;
+        Iterator<BroadcastList> itr = this.broadcastLists.iterator();
         boolean exist = false;
         while (itr.hasNext()) {
-            currList = itr.next();
-            if (currList.getNickname.equals(broadcastNickname)) {
+            BroadcastList currList = itr.next();
+            if (currList.getNickname().equals(broadcastNickname)) {
                 itr.remove();
                 exist = true;
             }
@@ -232,12 +231,11 @@ public class User
     public boolean isFriend(String nickname)
     {
         //TODO
-        Iterator itr = friends.iterator();
-        User currFriend = null;
+        Iterator<User> itr = friends.iterator();
         boolean isFriend = false;
         while (itr.hasNext()) {
-            currFriend = itr.next();
-            if (currFriend.getNickname.equals(nickname)) isFriend = true;
+            User currFriend = itr.next();
+            if (currFriend.getNickname().equals(nickname)) isFriend = true;
         }
         return isFriend;
     }
@@ -253,12 +251,11 @@ public class User
     public boolean isBroadcastList(String nickname)
     {
         //TODO
-        Iterator itr = broadcastLists.iterator();
-        BroadcastList currList = null;
+        Iterator<BroadcastList> itr = broadcastLists.iterator();
         boolean result = false;
         while (itr.hasNext()) {
-            currList = itr.next();
-            if (isMemberOfBroadcastList(nickname, currList.getNickname)) {
+            BroadcastList currList = itr.next();
+            if (isMemberOfBroadcastList(nickname, currList.getNickname())) {
                 result = true;
                 break;
             }
@@ -277,7 +274,7 @@ public class User
     public boolean isExistingNickname(String nickname)
     {
         //TODO
-        return false;
+        return isBroadcastList(nickname) || isFriend(nickname);
     }
 
     /**
@@ -292,17 +289,15 @@ public class User
     public boolean isMemberOfBroadcastList(String nickname, String broadcastNickname)
     {
         //TODO
-        Iterator itr = broadcastLists.iterator();
-        BroadcastList currList = null;
+        Iterator<BroadcastList> itr = broadcastLists.iterator();
         boolean result = false;
         while (itr.hasNext()) {
-            currList = itr.next();
-            if (currList.getNickname.equals(broadcastNickname)) {
+            BroadcastList currList = itr.next();
+            if (currList.getNickname().equals(broadcastNickname)) {
                 List<String> members = currList.getMembers();
-                Iterator memberItr = members.iterator();
-                String currMember = null;
+                Iterator<String> memberItr = members.iterator();
                 while (memberItr.hasNext()) {
-                    currMember = memberItr.next();
+                    String currMember = memberItr.next();
                     if (currMember.equals(nickname)) {
                         result = true;
                         break;
@@ -326,7 +321,25 @@ public class User
      */
     public void addFriend(String nickname) throws WhatsAppException
     {
-        //TODO        
+        //TODO
+        if (nickname.equals(this.nickname)) {
+            throw new  WhatsAppException(Config.CANT_BE_OWN_FRIEND);
+        }
+        if (isFriend(nickname)) {
+            throw new WhatsAppException(Config.ALREADY_A_FRIEND);
+        }
+        if (!Helper.isExistingGlobalContact(nickname)) {
+            throw new WhatsAppException(Config.CANT_LOCATE);
+        }
+        List<User> allUsers = Config.getInstance().getAllUsers();
+        Iterator<User> itr = allUsers.iterator();
+        while (itr.hasNext()) {
+            User currUser = itr.next();
+            if (currUser.getNickname().equals(nickname)) {
+                this.friends.add(currUser);
+                break;
+            }
+        }
     }
 
     /**
@@ -358,7 +371,6 @@ public class User
                         getMembers().
                         remove(nickname);
             }
-
         }
     }
 
