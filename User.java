@@ -244,7 +244,7 @@ public class User
      * this method check whether supplied nickname is a broadcast list of this
      * user object
      *
-     * @param nickname the nickname of the user to be checked whether it is a
+     * @param nickname the nickname of the BroadcastList to be checked whether it is a
      * broadcast list of this user object
      * @return true if nickname is a broadcast list of this user object
      */
@@ -255,12 +255,12 @@ public class User
         boolean result = false;
         while (itr.hasNext()) {
             BroadcastList currList = itr.next();
-            if (isMemberOfBroadcastList(nickname, currList.getNickname())) {
+            if (nickname.equals(currList.getNickname())) {
                 result = true;
                 break;
             }
         }
-        return false;
+        return result;
     }
 
     /**

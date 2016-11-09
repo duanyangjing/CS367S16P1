@@ -163,6 +163,7 @@ public class Helper
                                 parse(parts[3]), parts[4].
                                 substring(1, parts[4].length() - 1), parts[5].
                                 equals("read"));
+
                         getUserFromNickname(Config.getInstance().getAllUsers(), parts[2]).
                                 getMessages().add(receivedMessage);
                     }

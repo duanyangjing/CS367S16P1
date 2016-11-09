@@ -78,48 +78,50 @@ public class CommandProcessor
         //TODO
         User currUser = CONFIG.getCurrentUser();
         String fromNickname = currUser.getNickname();
-        List<User> allUsers = CONFIG.getAllUsers();
+        Message sentMessage = null;
+        Message receivedMessage = null;
+        Date d = new Date();
+
+        // message sent to the user himself, throw exception
         if (nickname.equals(fromNickname)) {
             throw new WhatsAppException(Config.CANT_SEND_YOURSELF);
         }
-        if (!Helper.isExistingGlobalContact(nickname)) {
+        // nickname not a friend or a BroadcastList of the current user
+        if (!currUser.isFriend(nickname)
+                && !currUser.isBroadcastList(nickname)) {
             throw new WhatsAppException(String.format(Config.NICKNAME_DOES_NOT_EXIST, nickname));
         }
 
-        Date d = new Date();
-        Message sentMessage = null;
-        Message receivedMessage = null;
+        // nickname is valid, could be a friend or a BroadcastList of current user
+        // nickname is a friend
         if (currUser.isFriend(nickname)) {
-            // Message sent to a friend not a broadcastlist. Message is read for senders.
+            // Message sent to a friend. Message is read for senders.
             sentMessage = new Message(fromNickname, nickname, null, d, message, true);
             currUser.getMessages().add(sentMessage);
-            User toUser = Helper.getUserFromNickname(allUsers, nickname);
+            User toUser = Helper.getUserFromNickname(CONFIG.getAllUsers(), nickname);
             // Message not read for receivers at the begining.
             receivedMessage = new Message(fromNickname, nickname, null, d, message, false);
             toUser.getMessages().add(receivedMessage);
-
+        // nickname is a broadcastlist
         } else if (currUser.isBroadcastList(nickname)) {
             // Message sent to a broadcastlist.
             sentMessage = new Message(fromNickname, null, nickname, d, message, true);
             currUser.getMessages().add(sentMessage);
-            // Need to process for each user in the broadcastlist
+            // Need to add received message for each user in the broadcastlist
             BroadcastList toBroadcastList = Helper.getBroadcastListFromNickname(currUser.getBroadcastLists(), nickname);
             Iterator<String> itr =
                 toBroadcastList.getMembers().iterator();
             while (itr.hasNext()) {
                 String broadcastListMemberNickname = itr.next();
-                User toUser = Helper.getUserFromNickname(allUsers, broadcastListMemberNickname);
+                User toUser = Helper.getUserFromNickname(CONFIG.getAllUsers(), broadcastListMemberNickname);
                 receivedMessage =
-                    new Message(fromNickname, toUser.getNickname(), null, d, message, false);
+                    new Message(fromNickname, broadcastListMemberNickname, null, d, message, false);
                 toUser.getMessages().add(receivedMessage);
             }
-
         } else {
-            // Given nickname is not a friend of the current user or a bcastList
-            // of the current user (but exists globally). No exception is found
-            // to deal with this case.
-            // may need to add new exceptions
+            throw new WhatsAppException(String.format(Config.NICKNAME_DOES_NOT_EXIST, nickname));
         }
+
         CONFIG.getConsoleOutput().printf(Config.MESSAGE_SENT_SUCCESSFULLY);
     }
 
@@ -139,7 +141,7 @@ public class CommandProcessor
         User currUser = CONFIG.getCurrentUser();
         List<Message> messages = currUser.getMessages();
         boolean existSuchMessage = false;
-        // read messages unread from
+        // user wants to read unread messages from another user
         if (nickname != null && enforceUnread) {
             for (Message message : messages) {
                 if (message.getFromNickname().equals(nickname) && !message.isRead()) {
@@ -148,24 +150,20 @@ public class CommandProcessor
                     printMessage(message);
                 }
             }
-            if (!existSuchMessage) {
-                CONFIG.getConsoleOutput().printf(Config.NO_MESSAGES);
-            }
 
-        // read messages all from
+        // user wants to read all messages related to another user
         } else if (nickname != null && !enforceUnread) {
             for (Message message: messages) {
                 if (message.getFromNickname().equals(nickname)
                     || message.getToNickname().equals(nickname)
-                    || isMemberOfBroadcastLists(nickname, currUser))
-                    existSuchMessage = true;
-                    printMessage(message);
-            }
-            if (!existSuchMessage) {
-                CONFIG.getConsoleOutput().printf(Config.NO_MESSAGES);
+                    || isMemberOfBroadcastLists(nickname, currUser)) {
+                        existSuchMessage = true;
+                        message.setRead(true);
+                        printMessage(message);
+                    }
             }
 
-        // read messages unread
+        // user wants to read all unread messages.
         } else if (nickname == null && enforceUnread) {
             List<Message> unreadMessages = new ArrayList<Message>();
             for (Message message : messages) {
@@ -175,27 +173,24 @@ public class CommandProcessor
                     unreadMessages.add(message);
                 }
             }
-            if (!existSuchMessage) {
-                CONFIG.getConsoleOutput().printf(Config.NO_MESSAGES);
-            }
 
             Collections.sort(unreadMessages);
             for (Message message : unreadMessages) {
                 printMessage(message);
             }
 
-        // read messages all
+        // user wants to read all messages related to everyone related to this user.
         } else {
-            if (messages.isEmpty()) {
-                System.out.println("HERE NO MESSAGES AT ALL");
-            }
             for (Message message : messages) {
                 existSuchMessage = true;
+                message.setRead(true);
                 printMessage(message);
             }
-            if (!existSuchMessage) {
-                CONFIG.getConsoleOutput().printf(Config.NO_MESSAGES);
-            }
+        }
+
+
+        if (!existSuchMessage) {
+            CONFIG.getConsoleOutput().printf(Config.NO_MESSAGES);
         }
     }
 
